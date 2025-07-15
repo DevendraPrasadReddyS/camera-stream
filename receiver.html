@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><title>Receive Camera</title></head>
+<body>
+  <h2>Receiving Video</h2>
+  <video autoplay id="remote-video" width="640" height="480"></video>
+  <input id="peer-id" placeholder="Enter friend's ID" />
+  <button onclick="connect()">Connect</button>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    const peer = new Peer();
+    const video = document.getElementById('remote-video');
+
+    function connect() {
+      const targetId = document.getElementById('peer-id').value;
+      const call = peer.call(targetId, null);
+
+      call.on('stream', remoteStream => {
+        video.srcObject = remoteStream;
+      });
+    }
+  </script>
+</body>
+</html>

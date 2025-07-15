@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Send Camera</title>
+</head>
+<body>
+  <h2>Sending Camera Stream...</h2>
+  <video autoplay muted id="video" width="640" height="480"></video>
+  <p id="peer-id-box">Waiting for ID...</p>
+
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script>
+    const peer = new Peer();
+
+    const video = document.getElementById('video');
+    const idBox = document.getElementById('peer-id-box');
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(stream => {
+      video.srcObject = stream;
+
+      peer.on('open', id => {
+        console.log("My peer ID is: " + id);
+        idBox.innerHTML = `Your Peer ID: <b>${id}</b>`;
+      });
+
+      peer.on('call', call => {
+        call.answer(stream); // Respond to calls with camera stream
+      });
+    }).catch(err => {
+      idBox.innerHTML = `Error accessing camera: ${err}`;
+    });
+  </script>
+</body>
+</html>
