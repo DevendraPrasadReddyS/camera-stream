@@ -1,39 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Receive Camera</title>
+  <title>Receiver</title>
 </head>
 <body>
-  <h2>Receiving Video</h2>
-  <video autoplay id="remote-video" width="640" height="480"></video>
-  <input id="peer-id" placeholder="Enter friend's ID" />
+  <h2>Receive Video</h2>
+  <video autoplay playsinline id="remoteVideo" width="640" height="480"></video>
+  <br />
+  <input type="text" id="peerIdInput" placeholder="Enter friend's Peer ID" />
   <button onclick="connect()">Connect</button>
-  <p id="status"></p>
+  <p id="status">Waiting for connection...</p>
 
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script>
     const peer = new Peer();
-    const video = document.getElementById('remote-video');
+    const video = document.getElementById('remoteVideo');
     const status = document.getElementById('status');
 
     function connect() {
-      const targetId = document.getElementById('peer-id').value;
-      status.textContent = `Connecting to ${targetId}...`;
+      const targetId = document.getElementById('peerIdInput').value;
+      if (!targetId) {
+        status.textContent = "❌ Please enter a valid Peer ID.";
+        return;
+      }
 
-      const call = peer.call(targetId, null);
+      status.textContent = `🔗 Connecting to ${targetId}...`;
+      const call = peer.call(targetId, null); // We don’t send a stream, just receive
 
-      call.on('stream', remoteStream => {
-        video.srcObject = remoteStream;
+      call.on('stream', stream => {
+        video.srcObject = stream;
         status.textContent = "✅ Connected! Showing video.";
       });
 
-      call.on('error', err => {
-        console.error("Call error:", err);
-        status.textContent = `❌ Call error: ${err.message}`;
+      call.on('close', () => {
+        status.textContent = "🔌 Connection closed.";
       });
 
-      call.on('close', () => {
-        status.textContent = "🔌 Call ended.";
+      call.on('error', err => {
+        status.textContent = `❌ Error: ${err.message}`;
+        console.error("Call error:", err);
       });
     }
   </script>
