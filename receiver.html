@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head><title>Receive Camera</title></head>
+<head>
+  <title>Receive Camera</title>
+</head>
 <body>
   <h2>Receiving Video</h2>
   <video autoplay id="remote-video" width="640" height="480"></video>
   <input id="peer-id" placeholder="Enter friend's ID" />
   <button onclick="connect()">Connect</button>
+  <p id="status"></p>
 
   <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script>
     const peer = new Peer();
     const video = document.getElementById('remote-video');
+    const status = document.getElementById('status');
 
     function connect() {
       const targetId = document.getElementById('peer-id').value;
+      status.textContent = `Connecting to ${targetId}...`;
+
       const call = peer.call(targetId, null);
 
       call.on('stream', remoteStream => {
         video.srcObject = remoteStream;
+        status.textContent = "✅ Connected! Showing video.";
+      });
+
+      call.on('error', err => {
+        console.error("Call error:", err);
+        status.textContent = `❌ Call error: ${err.message}`;
+      });
+
+      call.on('close', () => {
+        status.textContent = "🔌 Call ended.";
       });
     }
   </script>
